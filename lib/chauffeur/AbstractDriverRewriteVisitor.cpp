@@ -15,17 +15,20 @@ namespace chauffeur
     string fdFileWithExt = Context->getSourceManager().getFilename(funcDecl->getLocation());
     string fdFile = fdFileWithExt.substr(0, fdFileWithExt.find_last_of("."));
 
+    // If current function is not an entry point & inlining is enabled, inline the function
     if (!(DI->getInstance().ExistsEntryPointWithName(funcDecl->getNameInfo().getName().getAsString())) &&
       DoInline)
     {
       InlineFunctions(funcDecl, fdFile);
     }
 
+    // If current function is an entry point, instrument it
     if (DI->getInstance().ExistsEntryPointWithName(funcDecl->getNameInfo().getName().getAsString()))
     {
       InstrumentEntryPoints(funcDecl, fdFile);
     }
 
+    // If the checker function hasn't been written yet, and current function is init function, create checker
     if (!CheckerExists && funcDecl->getNameInfo().getName().getAsString() == DI->getInstance().GetInitFunction())
     {
       CreateCheckerFunction(funcDecl, fdFile);

@@ -18,23 +18,23 @@ namespace chauffeur
 {
   using namespace clang;
 
-	class CharDriverRewriteVisitor : public AbstractDriverRewriteVisitor
-	{
-	protected:
+  class CharDriverRewriteVisitor : public AbstractDriverRewriteVisitor
+  {
+  protected:
     virtual void InstrumentEntryPoints(FunctionDecl* FD, string fdFile);
     virtual void CreateCheckerFunction(FunctionDecl* FD, string fdFile);
 
     virtual string GetSharedStructStr(CallExpr *callExpr);
 
-	public:
-	  explicit CharDriverRewriteVisitor(CompilerInstance *CI, bool doInline)
+  public:
+    explicit CharDriverRewriteVisitor(CompilerInstance *CI, bool doInline)
       : AbstractDriverRewriteVisitor(CI, doInline)
-    {
+      {
 
-    }
+      }
 
     virtual ~CharDriverRewriteVisitor() {}
-	};
+  };
 }
 
 #endif // CHARDRIVERREWRITEVISITOR_H

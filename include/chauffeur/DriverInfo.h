@@ -14,21 +14,21 @@ namespace chauffeur
   using namespace clang;
   using namespace std;
 
-	class DriverInfo
-	{
-	private:
+  class DriverInfo
+  {
+  private:
     string init_function;
-		map<string, list<string> > entry_points;
+    map<string, list<string> > entry_points;
     map<string, map<string, string> > entry_point_pairs;
     map<string, list<map<string, string> > > function_pointer_information;
     DriverType driver_type;
 
-		DriverInfo() {}
-		DriverInfo(DriverInfo const&);
-		void operator=(DriverInfo const&);
+    DriverInfo() {}
+    DriverInfo(DriverInfo const&);
+    void operator=(DriverInfo const&);
 
-	public:
-		static DriverInfo& getInstance()
+  public:
+    static DriverInfo& getInstance()
     {
       static DriverInfo instance;
       return instance;
@@ -38,7 +38,7 @@ namespace chauffeur
     void SetInitFunction(string entrypoint);
 
     void AddEntryPoint(string entrypoint, list<string> params);
-		void AddEntryPointPair(string type, string funcname, string entrypoint);
+    void AddEntryPointPair(string type, string funcname, string entrypoint);
     void AddSharedStructInformation(string type, string funcname);
 
     void AddFunctionPointerInformation(string fp, string type, string info);
@@ -50,12 +50,12 @@ namespace chauffeur
     string GetInitFunction();
     map<string, list<string> > GetEntryPoints();
 
-		bool ExistsEntryPointWithName(string name);
+    bool ExistsEntryPointWithName(string name);
     bool IsDriverModule(string name);
 
-		void PrintDriverInfo();
+    void PrintDriverInfo();
     void PrintFunctionPointerInfo();
-	};
+  };
 }
 
 #endif // DRIVERINFO_H

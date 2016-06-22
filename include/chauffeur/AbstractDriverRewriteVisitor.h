@@ -17,24 +17,25 @@ namespace chauffeur
 {
   using namespace clang;
 
-	class AbstractDriverRewriteVisitor : public RecursiveASTVisitor<AbstractDriverRewriteVisitor>
-	{
+  class AbstractDriverRewriteVisitor : public RecursiveASTVisitor<AbstractDriverRewriteVisitor>
+  {
   private:
+    // Keeps track of whether whoop$checker function (or main()) has already been created
     bool CheckerExists;
     
-	protected:
-		ASTContext *Context;
-		Rewriter RW;
-		DriverInfo *DI;
+  protected:
+    ASTContext *Context;
+    Rewriter RW;
+    DriverInfo *DI;
     bool DoInline;
 
     explicit AbstractDriverRewriteVisitor(CompilerInstance *CI, bool doInline)
-    : Context(&(CI->getASTContext()))
-    {
-      DoInline = doInline;
-      CheckerExists = false;
-      RW.setSourceMgr(Context->getSourceManager(), Context->getLangOpts());
-    }
+      : Context(&(CI->getASTContext()))
+      {
+        DoInline = doInline;
+        CheckerExists = false;
+        RW.setSourceMgr(Context->getSourceManager(), Context->getLangOpts());
+      }
 
     void InlineFunctions(FunctionDecl* FD, string fdFile);
 
@@ -42,13 +43,13 @@ namespace chauffeur
     virtual void CreateCheckerFunction(FunctionDecl* FD, string fdFile) = 0;
     virtual string GetSharedStructStr(CallExpr *callExpr) = 0;
 
-	public:
-		virtual bool VisitFunctionDecl(FunctionDecl* funcDecl);
+  public:
+    virtual bool VisitFunctionDecl(FunctionDecl* funcDecl);
 
     virtual ~AbstractDriverRewriteVisitor() = 0;
 
-		void Finalise();
-	};
+    void Finalise();
+  };
 }
 
 #endif // ABSTRACTDRIVERREWRITEVISITOR_H
