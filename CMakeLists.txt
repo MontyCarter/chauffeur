@@ -44,7 +44,7 @@ if (NOT WIN32 OR MSYS OR CYGWIN)
   )
 
 	set(LLVM_CXXFLAGS "${LLVM_CXXFLAGS} -fno-rtti")
-	set(CXXFLAGS "-I\"${LLVM_SRC}/tools/clang/include\" -I\"${LLVM_BUILD}/tools/clang/include\" ${CXXFLAGS}")
+	set(CXXFLAGS "-g -I\"${LLVM_SRC}/tools/clang/include\" -I\"${LLVM_BUILD}/tools/clang/include\" ${CXXFLAGS}")
 	
 	set(CLANG_LIBS -lclangTooling -lclangFrontendTool -lclangFrontend -lclangDriver -lclangSerialization
 					-lclangCodeGen -lclangParse -lclangSema -lclangStaticAnalyzerFrontend -lclangStaticAnalyzerCheckers

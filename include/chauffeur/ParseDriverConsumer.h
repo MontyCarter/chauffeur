@@ -25,40 +25,40 @@ namespace chauffeur
 {
   using namespace clang;
 
-	class ParseDriverConsumer : public ASTConsumer {
-	private:
+  class ParseDriverConsumer : public ASTConsumer {
+  private:
     DriverInfo *DI;
-	  FindEntryPointsVisitor *FEPV;
+    FindEntryPointsVisitor *FEPV;
     FindFunctionPointersVisitor *FFPV;
     FindFunctionPointerCallsVisitor *FFPCV;
     MatchFunctionPointersVisitor *MFPV;
     CharDriverRewriteVisitor *CDRV;
     BlockDriverRewriteVisitor *BDRV;
-		NetworkDriverRewriteVisitor *NDRV;
+    NetworkDriverRewriteVisitor *NDRV;
     FileSystemRewriteVisitor *FSRV;
     GPUDriverRewriteVisitor *GPUDRV;
     NFCDriverRewriteVisitor *NFCDRV;
     USBDriverRewriteVisitor *USBDRV;
     TestDriverRewriteVisitor *TDRV;
 
-	public:
-	  explicit ParseDriverConsumer(CompilerInstance *CI, bool doInline)
-	    : FEPV(new FindEntryPointsVisitor(CI)),
-        FFPV(new FindFunctionPointersVisitor(CI)),
-        FFPCV(new FindFunctionPointerCallsVisitor(CI)),
-        MFPV(new MatchFunctionPointersVisitor(CI)),
-        CDRV(new CharDriverRewriteVisitor(CI, doInline)),
-        BDRV(new BlockDriverRewriteVisitor(CI, doInline)),
-        NDRV(new NetworkDriverRewriteVisitor(CI, doInline)),
-        FSRV(new FileSystemRewriteVisitor(CI, doInline)),
-        GPUDRV(new GPUDriverRewriteVisitor(CI, doInline)),
-        NFCDRV(new NFCDriverRewriteVisitor(CI, doInline)),
-        USBDRV(new USBDriverRewriteVisitor(CI, doInline)),
-        TDRV(new TestDriverRewriteVisitor(CI, doInline))
-		{}
+  public:
+    explicit ParseDriverConsumer(CompilerInstance *CI, bool doInline)
+      : FEPV(new FindEntryPointsVisitor(CI)),
+      FFPV(new FindFunctionPointersVisitor(CI)),
+      FFPCV(new FindFunctionPointerCallsVisitor(CI)),
+      MFPV(new MatchFunctionPointersVisitor(CI)),
+      CDRV(new CharDriverRewriteVisitor(CI, doInline)),
+      BDRV(new BlockDriverRewriteVisitor(CI, doInline)),
+      NDRV(new NetworkDriverRewriteVisitor(CI, doInline)),
+      FSRV(new FileSystemRewriteVisitor(CI, doInline)),
+      GPUDRV(new GPUDriverRewriteVisitor(CI, doInline)),
+      NFCDRV(new NFCDriverRewriteVisitor(CI, doInline)),
+      USBDRV(new USBDriverRewriteVisitor(CI, doInline)),
+      TDRV(new TestDriverRewriteVisitor(CI, doInline))
+        {}
 
-	  virtual void HandleTranslationUnit(ASTContext &Context);
-	};
+    virtual void HandleTranslationUnit(ASTContext &Context);
+  };
 }
 
 #endif // PARSEDRIVERCONSUMER_H

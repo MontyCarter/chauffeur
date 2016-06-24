@@ -15,23 +15,23 @@ namespace chauffeur
 {
   using namespace clang;
 
-	class FindFunctionPointersVisitor : public RecursiveASTVisitor<FindFunctionPointersVisitor> {
-	private:
-		ASTContext *Context;
-		DriverInfo *DI;
+  class FindFunctionPointersVisitor : public RecursiveASTVisitor<FindFunctionPointersVisitor> {
+  private:
+    ASTContext *Context;
+    DriverInfo *DI;
 
     void AnalyseInitListExpr(InitListExpr* initListExpr, string prefix);
 
-	public:
-	  explicit FindFunctionPointersVisitor(CompilerInstance *CI)
-			: Context(&(CI->getASTContext()))
-		{}
+  public:
+    explicit FindFunctionPointersVisitor(CompilerInstance *CI)
+      : Context(&(CI->getASTContext()))
+      {}
 
     virtual ~FindFunctionPointersVisitor() {}
 
     virtual bool VisitBinaryOperator(BinaryOperator* binOp);
     virtual bool VisitVarDecl(VarDecl* varDecl);
-	};
+  };
 }
 
 #endif // FINDFUNCTIONPOINTERSVISITOR_H

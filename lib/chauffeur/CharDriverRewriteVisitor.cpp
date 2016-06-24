@@ -32,7 +32,8 @@ namespace chauffeur
     // Add smack and pthread include
     RW.InsertText(top, "#include <pthread.h>\n", true, true);
 
-    //RW.InsertText(loc, "\n", true, true);
+    // The rest of the rewrite goes at the bottom
+    RW.InsertText(loc, "\n", true, true);
 
     // Get a list of the entry points for the driver
     auto entry_points = DI->getInstance().GetEntryPoints();
@@ -64,7 +65,7 @@ namespace chauffeur
     for(auto i = entry_points.rbegin(); i != entry_points.rend(); i++)
       {
 
-        RW.InsertText(loc, "void *whoop_wrapper_" + i->first + "()\n{\n", true, true);
+        RW.InsertText(loc, "void *whoop_wrapper_" + i->first + "(void* args)\n{\n", true, true);
         
         // Add a pthread_t struct to the list of pthread_t's
         pthread_ts += "\tpthread_t pthread_t_" + i->first + ";\n";

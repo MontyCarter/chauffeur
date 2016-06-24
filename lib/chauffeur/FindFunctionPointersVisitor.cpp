@@ -8,6 +8,7 @@
 #include "chauffeur/FindFunctionPointersVisitor.h"
 #include "chauffeur/Utilities.h"
 #include "clang/AST/ASTContext.h"
+#include <iostream>
 
 namespace chauffeur
 {
@@ -51,7 +52,7 @@ namespace chauffeur
     string prefix = GetPrefix(lhsDeclExpr->getDecl()->getType().getCanonicalType().getAsString());
 
     DI->getInstance().AddFunctionPointerInformation(prefix + "." + lhsNamedDecl->getNameAsString(),
-      "decl", rhsDeclExpr->getDecl()->getNameAsString());
+                                                    "decl", rhsDeclExpr->getDecl()->getNameAsString());
 
     return true;
   }
@@ -64,11 +65,11 @@ namespace chauffeur
       return true;
 
     if (varDecl->getType()->isRecordType())
-    {
-      RecordDecl *baseRecDecl = varDecl->getType()->getAs<RecordType>()->getDecl();
-      if (DI->IsDriverModule(baseRecDecl->getNameAsString()))
-        return true;
-    }
+      {
+        RecordDecl *baseRecDecl = varDecl->getType()->getAs<RecordType>()->getDecl();
+        if (DI->IsDriverModule(baseRecDecl->getNameAsString()))
+          return true;
+      }
 
     if (varDecl->getInit() == 0 || !isa<InitListExpr>(varDecl->getInit()))
       return true;
@@ -88,37 +89,43 @@ namespace chauffeur
 
   void FindFunctionPointersVisitor::AnalyseInitListExpr(InitListExpr* initListExpr, string prefix)
   {
+    // Loop through all initializations in initializer list
     for (auto range = initListExpr->children(); range; ++range)
-    {
-      DesignatedInitExpr *desExpr = cast<DesignatedInitExpr>(*range);
-      if (desExpr->size() > 1)
-        continue;
-      if (desExpr->getDesignator(0) == NULL)
-        continue;
-      if (desExpr->getDesignator(0)->isArrayDesignator())
       {
-        if(!isa<InitListExpr>(desExpr->getSubExpr(0)))
+        // For current initializer, do:
+        DesignatedInitExpr *desExpr = cast<DesignatedInitExpr>(*range);
+        // If number of designators is greater than 1, skip
+        if (desExpr->size() == 0)
           continue;
-
-        InitListExpr *expr = cast<InitListExpr>(desExpr->getSubExpr(0));
-        if (initListExpr == 0)
+        // If first designator is null, skip
+        if (desExpr->getDesignator(0) == NULL)
           continue;
+        // If first designator is an array designator
+        if (desExpr->getDesignator(0)->isArrayDesignator())
+          {
+            //
+            if(!isa<InitListExpr>(desExpr->getSubExpr(0)))
+              continue;
 
-        this->AnalyseInitListExpr(expr, prefix);
+            InitListExpr *expr = cast<InitListExpr>(desExpr->getSubExpr(0));
+            if (initListExpr == 0)
+              continue;
+
+            this->AnalyseInitListExpr(expr, prefix);
+          }
+        else if (desExpr->getDesignator(0)->isFieldDesignator())
+          {
+            if(!isa<ImplicitCastExpr>(desExpr->getSubExpr(0)))
+              continue;
+
+            ImplicitCastExpr *implExpr = cast<ImplicitCastExpr>(desExpr->getSubExpr(0));
+            if (implExpr->getCastKind() != 11 || !isa<DeclRefExpr>(implExpr->getSubExpr()))
+              continue;
+
+            DeclRefExpr *declExpr = cast<DeclRefExpr>(implExpr->getSubExpr());
+            string fp = prefix + "." + desExpr->getDesignator(0)->getFieldName()->getName().str();
+            DI->getInstance().AddFunctionPointerInformation(fp, "decl", declExpr->getDecl()->getNameAsString());
+          }
       }
-      else if (desExpr->getDesignator(0)->isFieldDesignator())
-      {
-        if(!isa<ImplicitCastExpr>(desExpr->getSubExpr(0)))
-          continue;
-
-        ImplicitCastExpr *implExpr = cast<ImplicitCastExpr>(desExpr->getSubExpr(0));
-        if (implExpr->getCastKind() != 11 || !isa<DeclRefExpr>(implExpr->getSubExpr()))
-          continue;
-
-        DeclRefExpr *declExpr = cast<DeclRefExpr>(implExpr->getSubExpr());
-        string fp = prefix + "." + desExpr->getDesignator(0)->getFieldName()->getName().str();
-        DI->getInstance().AddFunctionPointerInformation(fp, "decl", declExpr->getDecl()->getNameAsString());
-      }
-    }
   }
 }
