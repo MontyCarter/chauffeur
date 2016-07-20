@@ -1,3 +1,17 @@
+#####################
+# Cmake build files #
+#####################
+/CMakeCache.txt
+/CMakeFiles
+/Makefile
+/cmake_install.cmake
+/chauffeur
+
+######################
+# Emacs backup files #
+######################
+*~
+
 ###################
 # Driver rewrites #
 ###################
