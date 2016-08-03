@@ -39,6 +39,7 @@ namespace chauffeur
     auto entry_points = DI->getInstance().GetEntryPoints();
 
     // Write a numbered declaration inode and file for each entry point
+    RW.InsertText(loc, "// Declare values needed by entry point wrappers\n", true, true);
     for (unsigned long i = 0; i < entry_points.size(); i++)
       {
         RW.InsertText(loc, "struct inode *whoop_inode_" + std::to_string(i) + ";\n", true, true);
@@ -62,20 +63,23 @@ namespace chauffeur
     string creates = "";
     string joins = "";
     // Write one wrapper for a call to each entry point
+    RW.InsertText(loc, "// Pthread wrappers for entry points\n", true, true);
     for(auto i = entry_points.rbegin(); i != entry_points.rend(); i++)
       {
 
         RW.InsertText(loc, "void *whoop_wrapper_" + i->first + "(void* args)\n{\n", true, true);
         
-        // Add a pthread_t struct to the list of pthread_t's
-        pthread_ts += "\tpthread_t pthread_t_" + i->first + ";\n";
+        if (i->first == Ep1 || i->first == Ep2) {
+          // Add a pthread_t struct to the list of pthread_t's
+          pthread_ts += "\tpthread_t pthread_t_" + i->first + ";\n";
         
-        // Add a pthread_create call to the list of pthread_create's
-        creates += "\tpthread_create(&pthread_t_" + i->first;
-        creates += ", NULL, whoop_wrapper_" + i->first + ", NULL);\n";
+          // Add a pthread_create call to the list of pthread_create's
+          creates += "\tpthread_create(&pthread_t_" + i->first;
+          creates += ", NULL, whoop_wrapper_" + i->first + ", NULL);\n";
 
-        // Add a pthread_join call to the list of pthread_join's
-        joins += "\tpthread_join(pthread_t_" + i->first + ", NULL);\n";
+          // Add a pthread_join call to the list of pthread_join's
+          joins += "\tpthread_join(pthread_t_" + i->first + ", NULL);\n";
+        }
 
         string entry_point_call;
         entry_point_call = "" + i->first + "(";
@@ -166,6 +170,8 @@ namespace chauffeur
     RW.InsertText(loc, "{\n", true, true);
 
 
+    RW.InsertText(loc, "\t// Instantiate values required by entry poitns\n", true, true);
+
     // Allocate an inode and file for each entry point
     for (unsigned long i = 0; i < entry_points.size(); i++)
       {
@@ -186,10 +192,21 @@ namespace chauffeur
     RW.InsertText(loc, "\twhoop_int = __SMACK_nondet();\n", true, true);
     RW.InsertText(loc, "\t__SMACK_code(\"assume @ >= @;\", whoop_int, 0);\n\n", true, true);
 
+    // Call init function
+    //RW.InsertText(loc, "\t// Call module_init function\n", true, true);
+    //RW.InsertText(loc, "\t_whoop_init();\n\n", true, true);
+
     // Insert pthread_t decls, then pthread_create & pthread_join calls
+    RW.InsertText(loc, "\t// Declare pthread_t's\n", true, true);
     RW.InsertText(loc, pthread_ts + "\n", true, true);
+    RW.InsertText(loc, "\t// Create pthread threads\n", true, true);
     RW.InsertText(loc, creates + "\n", true, true);
-    RW.InsertText(loc, joins, true, true);
+    RW.InsertText(loc, "\t// Wait for threads to finish\n", true, true);
+    RW.InsertText(loc, joins + "\n", true, true);
+
+    // Call cleanup function
+    //RW.InsertText(loc, "\t// Call module_cleanup function\n", true, true);
+    //RW.InsertText(loc, "\t_whoop_exit();\n\n", true, true);
 
     RW.InsertText(loc, "}\n", true, true);
   }

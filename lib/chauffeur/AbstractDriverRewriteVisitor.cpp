@@ -49,8 +49,8 @@ namespace chauffeur
 
   void AbstractDriverRewriteVisitor::Finalise()
   {
-    string file = FileName;
-    file.append(".re.c");
+    string file = Folder;
+    file.append("/" + Group + "_" + Driver + "_" + Ep1 + "_" + Ep2 + "_" + Bug + ".c");
 
     string error_msg;
     llvm::raw_fd_ostream *fos = new llvm::raw_fd_ostream(file.c_str(), error_msg, llvm::sys::fs::F_None);

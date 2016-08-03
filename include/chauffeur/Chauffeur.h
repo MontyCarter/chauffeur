@@ -11,6 +11,12 @@
 namespace chauffeur
 {
   extern std::string FileName;
+  extern std::string Folder;
+  extern std::string Ep1;
+  extern std::string Ep2;
+  extern std::string Bug;
+  extern std::string Driver;
+  extern std::string Group;
 }
 
 #endif // CHAUFFEUR_H

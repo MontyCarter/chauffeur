@@ -11,6 +11,10 @@
 #include "clang/Tooling/CommonOptionsParser.h"
 #include "clang/Tooling/Tooling.h"
 #include "llvm/Option/OptTable.h"
+#include <iostream>
+#include <sstream>
+#include <vector>
+
 
 using namespace clang::driver;
 using namespace clang::tooling;
@@ -31,8 +35,31 @@ static cl::opt<bool> ASTInline("inline",
 
 static cl::OptionCategory ToolCategory("Chauffeur options");
 
+// These three are to pass on info about which entry points to make calls
+// to, and whether to mark the file as true (no bug) or false (buggy)
+static cl::opt<std::string> Ep1("ep1",
+                                cl::desc("the first entry point to call"),
+                                cl::cat(ToolCategory));
+static cl::opt<std::string> Ep2("ep2",
+                                cl::desc("the second entry point to call"),
+                                cl::cat(ToolCategory));
+static cl::opt<std::string> Bug("hasBug",
+                                cl::desc("does the benchmark have a bug"),
+                                cl::cat(ToolCategory));
+
 namespace chauffeur
 {
+
+  std::vector<string> split(const std::string &s, char delim) {
+    std::vector<string> elems;
+    std::stringstream ss(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+  }
+
   class ParseDriverASTAction : public ASTFrontendAction
   {
   public:
@@ -53,8 +80,16 @@ namespace chauffeur
 
 int main(int argc, const char **argv)
 {
-	CommonOptionsParser op(argc, argv, ToolCategory);
-	ClangTool Tool(op.getCompilations(), op.getSourcePathList());
-	chauffeur::FileName = op.getSourcePathList()[0].substr(0, op.getSourcePathList()[0].find_last_of("."));
-	return Tool.run(newFrontendActionFactory<chauffeur::ParseDriverASTAction>().get());
+  CommonOptionsParser op(argc, argv, ToolCategory);
+  std::vector<std::string> path = chauffeur::split(op.getSourcePathList()[0], '/');
+        
+  ClangTool Tool(op.getCompilations(), op.getSourcePathList());
+  chauffeur::FileName = op.getSourcePathList()[0].substr(0, op.getSourcePathList()[0].find_last_of("."));
+  chauffeur::Folder = op.getSourcePathList()[0].substr(0, op.getSourcePathList()[0].find_last_of("/"));
+  chauffeur::Ep1 = Ep1;
+  chauffeur::Ep2 = Ep2;
+  chauffeur::Bug = Bug;
+  chauffeur::Driver = path[path.size()-2];
+  chauffeur::Group = path[path.size()-3];
+  return Tool.run(newFrontendActionFactory<chauffeur::ParseDriverASTAction>().get());
 }
