@@ -12,7 +12,7 @@ namespace chauffeur
 	std::string Folder;
 	std::string Ep1;
 	std::string Ep2;
-	std::string Bug;
+	std::string NoBug;
 	std::string Driver;
 	std::string Group;
 

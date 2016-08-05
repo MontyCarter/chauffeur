@@ -43,8 +43,8 @@ static cl::opt<std::string> Ep1("ep1",
 static cl::opt<std::string> Ep2("ep2",
                                 cl::desc("the second entry point to call"),
                                 cl::cat(ToolCategory));
-static cl::opt<std::string> Bug("hasBug",
-                                cl::desc("does the benchmark have a bug"),
+static cl::opt<std::string> NoBug("noBug",
+                                cl::desc("does the benchmark have no bug"),
                                 cl::cat(ToolCategory));
 
 namespace chauffeur
@@ -88,7 +88,10 @@ int main(int argc, const char **argv)
   chauffeur::Folder = op.getSourcePathList()[0].substr(0, op.getSourcePathList()[0].find_last_of("/"));
   chauffeur::Ep1 = Ep1;
   chauffeur::Ep2 = Ep2;
-  chauffeur::Bug = Bug;
+  //Entry point file provides whether pair is racy (has a bug)
+  //svcomp file name should be true if no bug, false if a bug,
+  //so this is flipped
+  chauffeur::NoBug = NoBug;
   chauffeur::Driver = path[path.size()-2];
   chauffeur::Group = path[path.size()-3];
   return Tool.run(newFrontendActionFactory<chauffeur::ParseDriverASTAction>().get());

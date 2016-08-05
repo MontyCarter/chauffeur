@@ -14,7 +14,7 @@ namespace chauffeur
   extern std::string Folder;
   extern std::string Ep1;
   extern std::string Ep2;
-  extern std::string Bug;
+  extern std::string NoBug;
   extern std::string Driver;
   extern std::string Group;
 }
