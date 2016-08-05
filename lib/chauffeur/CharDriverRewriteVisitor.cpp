@@ -65,81 +65,135 @@ namespace chauffeur
     // Write one wrapper for a call to each entry point
     RW.InsertText(loc, "// Pthread wrappers for entry points\n", true, true);
     for(auto i = entry_points.rbegin(); i != entry_points.rend(); i++)
-      {
-
-        RW.InsertText(loc, "void *whoop_wrapper_" + i->first + "(void* args)\n{\n", true, true);
-        
+      { 
         if (i->first == Ep1 || i->first == Ep2) {
-          // Add a pthread_t struct to the list of pthread_t's
-          pthread_ts += "\tpthread_t pthread_t_" + i->first + ";\n";
-        
-          // Add a pthread_create call to the list of pthread_create's
-          creates += "\tpthread_create(&pthread_t_" + i->first;
-          creates += ", NULL, whoop_wrapper_" + i->first + ", NULL);\n";
 
-          // Add a pthread_join call to the list of pthread_join's
-          joins += "\tpthread_join(pthread_t_" + i->first + ", NULL);\n";
+          if(Ep1 == Ep2) {
+            // Add a pthread_t struct to the list of pthread_t's
+            pthread_ts += "\tpthread_t pthread_t_" + i->first + "_1;\n";
+            pthread_ts += "\tpthread_t pthread_t_" + i->first + "_2;\n";
+            // Add a pthread_create call to the list of pthread_create's
+            creates += "\tpthread_create(&pthread_t_" + i->first + "_1";
+            creates += ", NULL, whoop_wrapper_" + i->first + "_1, NULL);\n";
+            creates += "\tpthread_create(&pthread_t_" + i->first + "_2";
+            creates += ", NULL, whoop_wrapper_" + i->first + "_2, NULL);\n";
+            // Add a pthread_join call to the list of pthread_join's
+            joins += "\tpthread_join(pthread_t_" + i->first + "_1, NULL);\n";
+            joins += "\tpthread_join(pthread_t_" + i->first + "_2, NULL);\n";
+          } else {
+            // Add a pthread_t struct to the list of pthread_t's
+            pthread_ts += "\tpthread_t pthread_t_" + i->first + ";\n";
+            // Add a pthread_create call to the list of pthread_create's
+            creates += "\tpthread_create(&pthread_t_" + i->first;
+            creates += ", NULL, whoop_wrapper_" + i->first + ", NULL);\n";
+            // Add a pthread_join call to the list of pthread_join's
+            joins += "\tpthread_join(pthread_t_" + i->first + ", NULL);\n";
+          }
         }
 
-        string entry_point_call;
-        entry_point_call = "" + i->first + "(";
+        // Build wrapper text for current entry point
+        // If entry point pair are both the same, create separate wrapper,
+        //   in case we need to have different input args
+        string entry_point_call, entry_point_call_2;
+        if (Ep1 == Ep2 && i->first == Ep1) {
+          entry_point_call   = "void *whoop_wrapper_" + i->first + "_1(void* args)\n{\n";
+          entry_point_call_2 = "void *whoop_wrapper_" + i->first + "_2(void* args)\n{\n";
+        } else {
+          entry_point_call   = "void *whoop_wrapper_" + i->first + "(void* args)\n{\n";
+        }
+        entry_point_call   += "\t" + i->first + "(";
+        entry_point_call_2 += "\t" + i->first + "(";
 
         // Write the parameters, based on entry point signature.
         for(auto j = i->second.begin(); j != i->second.end(); j++)
           {
-            if (*j == "void")
-              entry_point_call += "";
-            else if (*j == "void *")
-              entry_point_call += "NULL, ";
-            else if (*j == "u64 *")
-              entry_point_call += "NULL, ";
-            else if (*j == "u8 *")
-              entry_point_call += "NULL, ";
-            else if (*j == "struct pci_dev *")
-              entry_point_call += "whoop_pci_dev, ";
-            else if (*j == "struct inode *")
-              entry_point_call += "whoop_inode_" + std::to_string(counter) + ", ";
-            else if (*j == "struct file *")
-              entry_point_call += "whoop_file_" + std::to_string(counter) + ", ";
-            else if (*j == "char *")
-              entry_point_call += "whoop_buf, ";
-            else if (*j == "const char *")
-              entry_point_call += "whoop_buf, ";
-            else if (*j == "loff_t *")
-              entry_point_call += "whoop_loff_t, ";
-            else if (*j == "loff_t")
-              entry_point_call += "&whoop_loff_t, ";
-            else if (*j == "poll_table *")
-              entry_point_call += "whoop_poll_table, ";
-            else if (*j == "struct platform_device *")
-              entry_point_call += "whoop_platform_device, ";
-            else if (*j == "struct vm_area_struct *")
-              entry_point_call += "whoop_vm_area_struct, ";
-            else if (*j == "struct cx_dev *")
-              entry_point_call += "whoop_cx_dev, ";
-            else if (*j == "size_t")
+            if (*j == "void") {
+              entry_point_call   += ", ";
+              entry_point_call_2 += ", ";
+            } else if (*j == "void *") {
+              entry_point_call   += "NULL, ";
+              entry_point_call_2 += "NULL, ";
+            } else if (*j == "u64 *") {
+              entry_point_call   += "NULL, ";
+              entry_point_call_2 += "NULL, ";
+            } else if (*j == "u8 *") {
+              entry_point_call   += "NULL, ";
+              entry_point_call_2 += "NULL, ";
+            } else if (*j == "struct pci_dev *") {
+              entry_point_call   += "whoop_pci_dev, ";
+              entry_point_call_2 += "whoop_pci_dev, ";
+            //TODO: if calling same entry point twice, should inode/fail be different?
+            } else if (*j == "struct inode *") {
+              entry_point_call   += "whoop_inode_" + std::to_string(counter) + ", ";
+              entry_point_call_2 += "whoop_inode_" + std::to_string(counter) + ", ";
+            } else if (*j == "struct file *") {
+              entry_point_call   += "whoop_file_" + std::to_string(counter) + ", ";
+              entry_point_call_2 += "whoop_file_" + std::to_string(counter) + ", ";
+            } else if (*j == "char *") {
+              entry_point_call   += "whoop_buf, ";
+              entry_point_call_2 += "whoop_buf, ";
+            } else if (*j == "const char *") {
+              entry_point_call   += "whoop_buf, ";
+              entry_point_call_2 += "whoop_buf, ";
+            } else if (*j == "loff_t *") {
+              entry_point_call   += "whoop_loff_t, ";
+              entry_point_call_2 += "whoop_loff_t, ";
+            } else if (*j == "loff_t") {
+              entry_point_call   += "&whoop_loff_t, ";
+              entry_point_call_2 += "&whoop_loff_t, ";
+            } else if (*j == "poll_table *") {
+              entry_point_call   += "whoop_poll_table, ";
+              entry_point_call_2 += "whoop_poll_table, ";
+            } else if (*j == "struct platform_device *") {
+              entry_point_call   += "whoop_platform_device, ";
+              entry_point_call_2 += "whoop_platform_device, ";
+            } else if (*j == "struct vm_area_struct *") {
+              entry_point_call   += "whoop_vm_area_struct, ";
+              entry_point_call_2 += "whoop_vm_area_struct, ";
+            } else if (*j == "struct cx_dev *") {
+              entry_point_call   += "whoop_cx_dev, ";
+              entry_point_call_2 += "whoop_cx_dev, ";
+            } else if (*j == "size_t") {
+              entry_point_call   += "whoop_int, ";
+              entry_point_call_2 += "whoop_int, ";
+            } else if (*j == "int") {
+              entry_point_call   += "whoop_int, ";
+              entry_point_call_2 += "whoop_int, ";
+            } else if (*j == "unsigned int") {
+              entry_point_call   += "whoop_int, ";
+              entry_point_call_2 += "whoop_int, ";
+            } else if (*j == "long") {
+              entry_point_call   += "whoop_int, ";
+              entry_point_call_2 += "whoop_int, ";
+            } else if (*j == "unsigned long") {
+              entry_point_call   += "whoop_int, ";
+              entry_point_call_2 += "whoop_int, ";
+            } else if (*j == "u32") {
               entry_point_call += "whoop_int, ";
-            else if (*j == "int")
-              entry_point_call += "whoop_int, ";
-            else if (*j == "unsigned int")
-              entry_point_call += "whoop_int, ";
-            else if (*j == "long")
-              entry_point_call += "whoop_int, ";
-            else if (*j == "unsigned long")
-              entry_point_call += "whoop_int, ";
-            else if (*j == "u32")
-              entry_point_call += "whoop_int, ";
-            else
-              entry_point_call += *j + ", ";
+              entry_point_call_2 += "whoop_int, ";
+            } else {
+              entry_point_call   += *j + ", ";
+              entry_point_call_2 += *j + ", ";
+            }
           }
 
-        if (entry_point_call != i->first + "(")
+        // If there was at least one param, take off last comma and space
+        if ( i->second.size() > 0)
           {
             entry_point_call.resize(entry_point_call.size() - 2);
           }
+        if ( i->second.size() > 0)
+          {
+            entry_point_call_2.resize(entry_point_call_2.size() - 2);
+          }
 
-        RW.InsertText(loc, "\t" + entry_point_call + ");\n", true, true);
-        RW.InsertText(loc, "}\n\n", true, true);
+        entry_point_call   += ");\n}\n\n";
+        entry_point_call_2 += ");\n}\n\n";
+
+        RW.InsertText(loc, entry_point_call, true, true);
+        if(Ep1 == Ep2 && Ep1 == i->first) {
+          RW.InsertText(loc, entry_point_call_2, true, true);
+        }
         counter++;
       }
 
