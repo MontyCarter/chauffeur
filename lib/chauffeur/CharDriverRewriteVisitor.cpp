@@ -243,8 +243,8 @@ namespace chauffeur
     RW.InsertText(loc, "\twhoop_poll_table = (poll_table *) malloc(sizeof(poll_table));\n\n", true, true);
     
     RW.InsertText(loc, "\twhoop_loff_t = (loff_t *) malloc(sizeof(loff_t));\n", true, true);
-    RW.InsertText(loc, "\twhoop_int = __SMACK_nondet();\n", true, true);
-    RW.InsertText(loc, "\t__SMACK_code(\"assume @ >= @;\", whoop_int, 0);\n\n", true, true);
+    RW.InsertText(loc, "\twhoop_int = __VERIFIER_nondet_int();\n", true, true);
+    RW.InsertText(loc, "\t__VERIFIER_assume(whoop_int >= 0);\n\n", true, true);
 
     // Call init function
     //RW.InsertText(loc, "\t// Call module_init function\n", true, true);
