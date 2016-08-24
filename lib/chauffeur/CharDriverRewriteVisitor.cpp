@@ -224,7 +224,7 @@ namespace chauffeur
     RW.InsertText(loc, "{\n", true, true);
 
 
-    RW.InsertText(loc, "\t// Instantiate values required by entry poitns\n", true, true);
+    RW.InsertText(loc, "\t// Instantiate values required by entry points\n", true, true);
 
     // Allocate an inode and file for each entry point
     for (unsigned long i = 0; i < entry_points.size(); i++)
@@ -247,8 +247,8 @@ namespace chauffeur
     RW.InsertText(loc, "\t__VERIFIER_assume(whoop_int >= 0);\n\n", true, true);
 
     // Call init function
-    //RW.InsertText(loc, "\t// Call module_init function\n", true, true);
-    //RW.InsertText(loc, "\t_whoop_init();\n\n", true, true);
+    RW.InsertText(loc, "\t// Call module_init function\n", true, true);
+    RW.InsertText(loc, "\tint _whoop_init_result = _whoop_init();\n\n", true, true);
 
     // Insert pthread_t decls, then pthread_create & pthread_join calls
     RW.InsertText(loc, "\t// Declare pthread_t's\n", true, true);
