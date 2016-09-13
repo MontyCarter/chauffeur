@@ -24,8 +24,8 @@ namespace chauffeur
           return true;
         }
 
-        ImplicitCastExpr *implExpr2 = cast<ImplicitCastExpr>(implExpr->getSubExpr());
-        DeclRefExpr *declExpr = cast<DeclRefExpr>(implExpr2->getSubExpr());
+        //ImplicitCastExpr *implExpr2 = cast<ImplicitCastExpr>(implExpr->getSubExpr());
+        DeclRefExpr *declExpr = cast<DeclRefExpr>(implExpr->getSubExpr());
         DI->getInstance().AddEntryPointPair("whoop_driver_ops", "probe",
           declExpr->getFoundDecl()->getNameAsString());
         DI->getInstance().SetInitFunction(declExpr->getFoundDecl()->getNameAsString());
